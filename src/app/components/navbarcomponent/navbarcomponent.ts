@@ -1,4 +1,6 @@
-import { Component, HostListener } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ThemeService } from '../../services/themeservice';
 
 @Component({
   selector: 'app-navbar',
@@ -7,22 +9,43 @@ import { Component, HostListener } from '@angular/core';
   standalone: false
 })
 export class NavbarComponent {
+  searchQuery: string = '';
+  isLoggedIn: boolean = false;
   isDropdownOpen: boolean = false;
-  isMobileMenuOpen: boolean = false;
+  isCustomizerOpen: boolean = false;
+
+  constructor(
+    private router: Router,
+    private themeService: ThemeService
+  ) {}
+
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      console.log('Buscando:', this.searchQuery);
+    }
+  }
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();
     this.isDropdownOpen = !this.isDropdownOpen;
+    this.isCustomizerOpen = false;
   }
 
-  toggleMobileMenu(event: Event): void {
+  toggleCustomizer(event: Event): void {
     event.stopPropagation();
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isCustomizerOpen = !this.isCustomizerOpen;
+    this.isDropdownOpen = false;
   }
 
-  @HostListener('document:click')
-  closeDropdown(): void {
-    this.isDropdownOpen = false;
-    this.isMobileMenuOpen = false;
+  changeTheme(theme: string): void {
+    this.themeService.setTheme(theme);
+    this.isCustomizerOpen = false;
+  }
+
+  logout(event: Event): void {
+    event.preventDefault();
+    localStorage.removeItem('token');
+    this.isLoggedIn = false;
+    this.router.navigate(['/login']);
   }
 }
